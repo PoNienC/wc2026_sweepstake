@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>World Cup 2026 · Office Sweepstake — Live Bracket</title>
+<style>
+/* ================================================================
+   P+P BRAND THEME — colours from Office_Templates theme1.xml
+   (PP_Template.pptx / P+P Memo v03.dotx), fonts: GT America.
+   ================================================================ */
+:root{
+  --pp-ink:    #121212;   /* dk1 — primary text            */
+  --pp-plum:   #2B242C;   /* dk2 — headings / dark panels  */
+  --pp-cream:  #F1EEDF;   /* lt2 — page background         */
+  --pp-card:   #ffffff;   /* lt1 — cards / match boxes     */
+  --pp-coral:  #FF511D;   /* accent1 — LIVE / primary      */
+  --pp-blue:   #005DFF;   /* accent2 — NEXT / links        */
+  --pp-green:  #4BB400;   /* accent3 — still-in chips      */
+  --pp-lime:   #DAE950;   /* accent4                       */
+  --pp-pink:   #FF2A8E;   /* accent5                       */
+  --pp-muted:  #7a746b;   /* warm grey (derived)           */
+  --pp-line:   #ddd6c2;   /* borders (derived from cream)  */
+  --pp-link:   #c3bba2;   /* bracket connector lines       */
+  --pp-out:    #b5afa2;   /* eliminated grey               */
+  --gold:      #c9a227;
+  --pp-panel:      #2B242C;  /* header / drawer bar (dark in BOTH modes) */
+  --pp-panelText:  #F1EEDF;
+  --pp-panelMuted: #b7b0a4;
+}
+/* ---------- dark mode (P+P palette, inverted) ---------- */
+body.dark{
+  --pp-ink:   #F1EEDF;
+  --pp-plum:  #E9E4D4;    /* headings on dark              */
+  --pp-cream: #221D23;    /* page background               */
+  --pp-card:  #2F282F;    /* cards / match boxes           */
+  --pp-muted: #A69F93;
+  --pp-line:  #4A424B;
+  --pp-link:  #5F5762;
+  --pp-out:   #7A7280;
+  --pp-panel: #171317;
+}
+body.dark .chip.outc{background:#3B343C;color:var(--pp-muted)}
+body.dark .mbox.live{box-shadow:0 0 0 2px rgba(255,81,29,.30)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--pp-cream);color:var(--pp-ink);
+  font:16px/1.45 "GT America","GT America Light",-apple-system,"Helvetica Neue",Helvetica,Arial,sans-serif}
+h1,h2,h3,.rlab,.chip,.tag{font-family:"GT America","GT America Medium",-apple-system,"Helvetica Neue",Helvetica,Arial,sans-serif}
+
+/* ---------- header ---------- */
+header{display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  padding:16px 24px;background:var(--pp-panel);color:var(--pp-panelText)}
+header h1{font-size:22px;letter-spacing:.5px;text-transform:uppercase;font-weight:600}
+header h1 b{color:var(--pp-coral)}
+header .sub{font-size:13px;color:var(--pp-panelMuted);margin-top:2px}
+#stamp{font-size:12.5px;color:var(--pp-panelMuted);margin-left:auto;text-align:right}
+#themeBtn{border:1.5px solid var(--pp-panelText);background:transparent;color:var(--pp-panelText);
+  border-radius:8px;padding:6px 11px;font-size:15px;cursor:pointer;line-height:1}
+#themeBtn:hover{background:var(--pp-coral);border-color:var(--pp-coral)}
+#err{display:none;background:var(--pp-coral);color:#fff;padding:6px 24px;font-size:13px}
+
+/* ---------- layout ---------- */
+#main{width:100%;overflow-x:auto;padding:20px 12px 40px}
+
+/* sidebar = slide-in drawer, folded by default */
+#side{position:fixed;top:0;left:0;bottom:0;width:326px;z-index:60;background:var(--pp-card);
+  border-right:2px solid var(--pp-line);overflow-y:auto;padding:0 0 30px;
+  transform:translateX(-105%);transition:transform .25s ease}
+body.side-open #side{transform:translateX(0);box-shadow:0 0 28px rgba(18,18,18,.30)}
+#sideHead{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;
+  background:var(--pp-panel);color:var(--pp-panelText);padding:12px 18px}
+#sideHead h2{font-size:14px;letter-spacing:1.4px;text-transform:uppercase;padding:0}
+#sideClose{border:0;background:transparent;color:var(--pp-panelText);font-size:20px;cursor:pointer;line-height:1}
+#sideBtn{border:1.5px solid var(--pp-panelText);background:transparent;color:var(--pp-panelText);
+  border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+#sideBtn:hover{background:var(--pp-coral);border-color:var(--pp-coral)}
+
+/* ---------- bracket ---------- */
+#bfit{overflow:visible}
+#bracket{display:flex;gap:16px;min-width:1840px;padding:0 14px;position:relative;transform-origin:top left}
+svg.links{position:absolute;top:0;left:0;z-index:0;pointer-events:none}
+.round{display:flex;flex-direction:column;flex:1 1 0;min-width:188px;position:relative;z-index:1}
+.rlab{text-align:center;font-size:12.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;
+  color:var(--pp-plum);padding-bottom:12px}
+.rcol{display:flex;flex-direction:column;justify-content:space-around;flex:1;gap:12px}
+.mwrap{display:flex;flex-direction:column;justify-content:center}
+.mbox{background:var(--pp-card);border:1.5px solid var(--pp-line);border-radius:10px;
+  padding:8px 10px 6px;position:relative}
+.mbox .mno{position:absolute;top:-9px;left:9px;background:var(--pp-cream);border:1px solid var(--pp-line);
+  border-radius:6px;font-size:10px;padding:0 6px;color:var(--pp-muted);font-weight:700}
+.mbox.live{border-color:var(--pp-coral);box-shadow:0 0 0 2px rgba(255,81,29,.20);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 2px rgba(255,81,29,.16)}50%{box-shadow:0 0 0 5px rgba(255,81,29,.34)}}
+.mbox.next{border-color:var(--pp-blue);border-style:dashed;box-shadow:0 0 0 2px rgba(0,93,255,.12)}
+.tag{position:absolute;top:-10px;right:9px;font-size:10px;font-weight:800;letter-spacing:.7px;
+  border-radius:6px;padding:1px 7px;color:#fff}
+.tag.tlive{background:var(--pp-coral)}
+.tag.tnext{background:var(--pp-blue)}
+.trow{display:flex;align-items:center;gap:8px;padding:5px 1px}
+.trow+.trow{border-top:1px dashed var(--pp-line)}
+.trow img{width:30px;height:30px;border-radius:50%;object-fit:cover;border:1px solid var(--pp-line);flex:0 0 30px}
+.trow .nm{flex:1;min-width:0}
+.trow .who{font-weight:700;font-size:15px;line-height:1.2;color:var(--pp-ink);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trow .tn{display:block;font-size:11.5px;color:var(--pp-muted);line-height:1.2;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trow .sc{font-weight:800;font-size:17px;min-width:26px;text-align:right;font-variant-numeric:tabular-nums}
+.trow.win .who{color:var(--pp-ink)}
+.trow.lose .who,.trow.lose .sc{color:var(--pp-muted);font-weight:600}
+.trow.lose img{filter:grayscale(.85);opacity:.72}
+.trow.tbd .who{color:var(--pp-muted);font-weight:500;font-style:italic;font-size:13px}
+.mfoot{font-size:10.5px;color:var(--pp-muted);text-align:center;padding-top:4px;
+  border-top:1px solid var(--pp-line);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mbox.live .mfoot{color:var(--pp-coral);font-weight:700}
+
+/* centre column */
+.centre{justify-content:center;gap:16px;min-width:210px}
+.centre .mbox.final{border-width:2.5px;border-color:var(--pp-plum);padding:11px 12px 8px}
+.centre .final .who{font-size:16px}
+#champ{text-align:center;font-size:14px;font-weight:700;padding:6px 4px;color:var(--pp-plum)}
+#champ .cup{font-size:32px;display:block}
+.bronzelab{text-align:center;font-size:11px;font-weight:700;letter-spacing:1.2px;color:var(--pp-muted);
+  text-transform:uppercase;margin-top:16px}
+
+/* ---------- knocked-out list ---------- */
+#knockedOut{margin:30px 14px 0;border-top:2px solid var(--pp-line);padding-top:16px}
+#knockedOut h2{font-size:15px;letter-spacing:1.4px;text-transform:uppercase;color:var(--pp-plum);margin-bottom:10px}
+.gsec{margin-bottom:16px}
+.gsec h3{font-size:13px;font-weight:700;color:var(--pp-ink);margin-bottom:8px}
+.gsec h3 span{color:var(--pp-muted);font-weight:600}
+.gcards{display:flex;flex-wrap:wrap;gap:8px}
+.gcard{display:flex;align-items:center;gap:9px;background:var(--pp-card);border:1px solid var(--pp-line);
+  border-radius:9px;padding:6px 12px 6px 7px}
+.gcard img{width:28px;height:28px;border-radius:50%;object-fit:cover;filter:grayscale(1);opacity:.62}
+.gcard .gp{font-size:13.5px;font-weight:700;color:var(--pp-muted)}
+.gcard .gt{font-size:11px;color:var(--pp-out);line-height:1.15}
+.gcard.bronze{border-color:var(--gold)}
+.gcard.bronze img{filter:none;opacity:1}
+.gcard.bronze .gp{color:var(--pp-ink)}
+
+/* ---------- sidebar leaderboard ---------- */
+#side .sum{font-size:12px;color:var(--pp-muted);padding:12px 18px 12px}
+.srow{display:flex;align-items:center;gap:10px;padding:6px 18px}
+.srow img{width:28px;height:28px;border-radius:50%;object-fit:cover;border:1px solid var(--pp-line)}
+.srow .sp{flex:1;min-width:0}
+.srow .sp b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.srow .sp span{display:block;font-size:11.5px;color:var(--pp-muted);line-height:1.25;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip{font-size:10.5px;font-weight:800;letter-spacing:.4px;border-radius:6px;padding:2px 8px;white-space:nowrap}
+.chip.alive{background:rgba(75,180,0,.14);color:var(--pp-green)}
+.chip.livec{background:var(--pp-coral);color:#fff;animation:blink 1.4s infinite}
+@keyframes blink{50%{opacity:.55}}
+.chip.champ{background:var(--gold);color:#fff}
+.chip.outc{background:#eae6d8;color:var(--pp-muted)}
+.srow.out img{filter:grayscale(1);opacity:.5}
+.srow.out .sp b{color:var(--pp-muted);font-weight:600}
+.sdiv{display:flex;align-items:center;gap:8px;color:var(--pp-out);font-size:11px;font-weight:700;
+  letter-spacing:1.6px;text-transform:uppercase;padding:12px 18px 4px}
+.sdiv::before,.sdiv::after{content:"";flex:1;border-top:1px solid var(--pp-line)}
+
+footer{padding:12px 24px 28px;font-size:11.5px;color:var(--pp-muted)}
+</style>
+</head>
+<body>
+
+<header>
+  <button id="sideBtn" title="Open the who's-still-in leaderboard">☰ Who's still in</button>
+  <div>
+    <h1>World Cup 2026 · <b>P+P</b> Office Sweepstake</h1>
+    <div class="sub">Live knockout bracket</div>
+  </div>
+  <div id="stamp">loading…</div>
+  <button id="themeBtn" title="Switch light / dark mode">🌙</button>
+</header>
+<div id="err"></div>
+
+<aside id="side">
+  <div id="sideHead"><h2>Who's still in</h2><button id="sideClose" title="Close">✕</button></div>
+  <div id="sideBody"></div>
+</aside>
+<div id="main">
+  <div id="bfit"><div id="bracket"></div></div>
+  <div id="knockedOut"></div>
+</div>
+
+<footer>
+  Unofficial office sweepstake page — not affiliated with FIFA. Match data © FIFA (api.fifa.com), refreshed every 60&nbsp;s.
+  Times shown in <span id="tzlab"></span>.
+</footer>
+
+<script>
+'use strict';
+/* ================= sweepstake draw (from the office PDF) ================= */
+const SWEEPSTAKE = {
+  KSA:'Jack S.',    PAN:'Simon B.',   ESP:'Po Nien C.', ARG:'Jess R.',
+  BEL:'Elise B.',   ALG:'Patrick G.', CUW:'Xeniya M.',  TUN:'Tom V.',
+  NOR:'Simon M.',   GER:'Tom C.',     MAR:'Tom D.',     GHA:'Graham G.',
+  BIH:'Polly B.',   NED:'Mehul B.',   FRA:'Alankrita A.', MEX:'Stacey L.',
+  UZB:'Rachel D.',  AUT:'Katy A.',    CPV:'Emilia M.',  COD:'Aneira F.',
+  HAI:'Jojo D.',    AUS:'Sophie W.',  BRA:'Elise R.',   SWE:'Alice C.',
+  JPN:'Louise W.',  IRN:'Katherine K.', SEN:'Jack P.',  COL:'Hazel M.',
+  USA:'Paul C.',    PAR:'Felix Y.',   CIV:'Katherine R.', SCO:'Natalia B.',
+  RSA:'Dan A.',     CAN:'Zubin',      POR:'Jack W.',    ECU:'Barbel G.',
+  SUI:'Patricio M.',KOR:'Zeynep K.',  TUR:'Shaun A.',   ENG:'Jason P.',
+  CZE:'Abhi A.',    CRO:'Annette D.', EGY:'Kevin V.',   QAT:'Alex H.',
+  NZL:'Norma W.',   JOR:'Juliette A.', IRQ:'Sandra W.', URU:'Juan O.'
+};
+
+const FEED = 'https://api.fifa.com/api/v3/calendar/matches?idCompetition=17&idSeason=285023&count=500&language=en';
+const LIVE_WINDOW_MS = 2.5 * 3600e3;
+const ROUND_LABEL = {1:'Round of 32', 2:'Round of 16', 3:'Quarter-finals', 4:'Semi-finals', 5:'Final'};
+const ROUND_SHORT = {1:'R32', 2:'R16', 3:'QF', 4:'SF', 5:'FINAL'};
+
+let byNum = {}, teamNames = {}, lastData = null;
+
+const $ = s => document.querySelector(s);
+const flag = fc => `https://api.fifa.com/api/v3/picture/flags-sq-2/${fc}`;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function loc(nameArr, fallback){
+  if (Array.isArray(nameArr) && nameArr.length) return nameArr[0].Description || fallback;
+  return fallback;
+}
+function koLabel(iso, withDay=true){
+  const d = new Date(iso);
+  const opt = withDay ? {weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}
+                      : {hour:'2-digit', minute:'2-digit'};
+  return d.toLocaleString(undefined, opt);
+}
+function koShort(iso){   // compact for the sidebar: "Sat 4 · 18:00"
+  const d = new Date(iso);
+  return d.toLocaleString(undefined, {weekday:'short'}) + ' ' + d.getDate() + ' · ' +
+         d.toLocaleString(undefined, {hour:'2-digit', minute:'2-digit', hour12:false});
+}
+function sideOf(m, key){          // normalised team object or null
+  const t = m[key];
+  if (!t || !t.IdCountry) return null;
+  const pens = key === 'Home' ? m.HomeTeamPenaltyScore : m.AwayTeamPenaltyScore;
+  return { fc: t.IdCountry, name: teamNames[t.IdCountry] || t.ShortClubName || t.IdCountry,
+           score: t.Score, pens: pens || null };
+}
+function isFinished(m){ return m.MatchStatus === 0; }
+function isLive(m){
+  if (m.MatchStatus === 3) return true;
+  const ko = new Date(m.Date).getTime();
+  return !isFinished(m) && Date.now() >= ko && (Date.now() - ko) < LIVE_WINDOW_MS;
+}
+function winnerKey(m){            // 'Home' | 'Away' | null (finished matches only)
+  if (!isFinished(m)) return null;
+  const h = m.Home, a = m.Away;
+  if (!h || !a || h.Score == null) return null;
+  if (h.Score !== a.Score) return h.Score > a.Score ? 'Home' : 'Away';
+  const hp = m.HomeTeamPenaltyScore, ap = m.AwayTeamPenaltyScore;
+  if (hp != null && hp !== ap) return hp > ap ? 'Home' : 'Away';
+  return null;
+}
+
+/* ---------- data ---------- */
+async function fetchData(){
+  const r = await fetch(FEED, {cache:'no-store'});
+  if (!r.ok) throw new Error('FIFA feed HTTP ' + r.status);
+  const j = await r.json();
+  const ms = j.Results || [];
+  byNum = {}; teamNames = {};
+  for (const m of ms){
+    if (m.MatchNumber) byNum[m.MatchNumber] = m;
+    for (const k of ['Home','Away']){
+      const t = m[k];
+      if (t && t.IdCountry && !teamNames[t.IdCountry])
+        teamNames[t.IdCountry] = loc(t.TeamName, t.ShortClubName || t.IdCountry);
+    }
+  }
+  return ms;
+}
+
+/* ---------- tournament state ---------- */
+function computeState(ms){
+  const ko = ms.filter(m => (m.MatchNumber||0) >= 73);
+  const groups = ms.filter(m => (m.MatchNumber||0) >= 1 && m.MatchNumber <= 72);
+  const groupsDone = groups.length > 0 && groups.every(isFinished);
+
+  // teams that reached the knockouts
+  const koTeams = new Set();
+  for (const m of ko) if (m.MatchNumber <= 88)
+    for (const k of ['Home','Away']){ const t = sideOf(m,k); if (t) koTeams.add(t.fc); }
+
+  // status per sweepstake team
+  const st = {};   // fc -> {out, stage, elimTime, roundNow, live, next, note}
+  for (const fc of Object.keys(SWEEPSTAKE)) st[fc] = {out:false, roundNow:1, elimTime:0, stage:'', note:''};
+
+  // group-stage eliminations (only once the groups are complete)
+  if (groupsDone){
+    for (const fc of Object.keys(st)){
+      if (!koTeams.has(fc)){
+        let last = 0;
+        for (const m of groups)
+          if ((m.Home?.IdCountry === fc || m.Away?.IdCountry === fc))
+            last = Math.max(last, new Date(m.Date).getTime());
+        st[fc] = {out:true, stage:'Group stage', stageRank:0, elimTime:last, note:''};
+      }
+    }
+  }
+
+  // knockout progress + eliminations
+  const roundOf = n => n<=88 ? 1 : n<=96 ? 2 : n<=100 ? 3 : (n===101||n===102) ? 4 : 5;
+  let champion = null, bronzeWinner = null;
+  for (const m of ko){
+    const n = m.MatchNumber, rd = roundOf(n);
+    const h = sideOf(m,'Home'), a = sideOf(m,'Away');
+    for (const t of [h,a]) if (t && st[t.fc] && !st[t.fc].out)
+      st[t.fc].roundNow = Math.max(st[t.fc].roundNow, rd);
+    const wk = winnerKey(m);
+    if (wk && n !== 103){                       // bronze match never eliminates anyone
+      const loser = wk === 'Home' ? a : h;
+      const winner = wk === 'Home' ? h : a;
+      if (loser && st[loser.fc] && n <= 102){
+        st[loser.fc] = {out:true, stage:ROUND_LABEL[rd], stageRank:rd, elimTime:new Date(m.Date).getTime(), note:''};
+      }
+      if (n === 104 && winner) champion = winner.fc;
+    }
+    if (n === 103 && wk) bronzeWinner = (wk==='Home'?h:a)?.fc || null;
+    if (isLive(m)){
+      for (const t of [h,a]) if (t && st[t.fc]) st[t.fc].live = m;
+    } else if (!isFinished(m)){
+      for (const t of [h,a]) if (t && st[t.fc] && !st[t.fc].out){
+        if (!st[t.fc].next || new Date(m.Date) < new Date(st[t.fc].next.Date)) st[t.fc].next = m;
+      }
+    }
+  }
+  if (bronzeWinner && st[bronzeWinner]) st[bronzeWinner].note = '🥉 3rd place';
+  if (champion && st[champion]) { st[champion].champion = true; }
+
+  // live / next match for the bracket highlight
+  let liveMatches = ko.filter(isLive), next = null;
+  for (const m of ko)
+    if (!isFinished(m) && !isLive(m) && (!next || new Date(m.Date) < new Date(next.Date))) next = m;
+
+  return {st, groupsDone, liveMatches, next, champion, bronzeWinner};
+}
+
+/* ---------- bracket tree (derived from FIFA PlaceHolderA/B) ---------- */
+function srcMatch(ph){
+  const n = parseInt(String(ph||'').replace(/\D/g,''), 10);
+  return byNum[n] || null;
+}
+function collectCols(){
+  // cols.L[d] / cols.R[d] with d: 0=SF,1=QF,2=R16,3=R32
+  const cols = {L:[[],[],[],[]], R:[[],[],[],[]]};
+  const walk = (m, d, side) => {
+    if (!m || d > 3) return;
+    cols[side][d].push(m);
+    if (d < 3){ walk(srcMatch(m.PlaceHolderA), d+1, side); walk(srcMatch(m.PlaceHolderB), d+1, side); }
+  };
+  const fin = byNum[104];
+  if (fin){ walk(srcMatch(fin.PlaceHolderA), 0, 'L'); walk(srcMatch(fin.PlaceHolderB), 0, 'R'); }
+  return cols;
+}
+
+/* ---------- rendering ---------- */
+function teamRowHTML(m, key, state){
+  const t = sideOf(m, key);
+  if (!t){
+    const ph = key === 'Home' ? m.PlaceHolderA : m.PlaceHolderB;
+    const lab = /^RU/.test(ph||'') ? `Loser SF${ph.slice(-1)==='1'?1:2}`
+              : ph ? `Winner M${String(ph).replace(/\D/g,'')}` : 'TBD';
+    return `<div class="trow tbd"><img src="" style="visibility:hidden"><div class="nm"><div class="who">${esc(lab)}</div></div><div class="sc"></div></div>`;
+  }
+  const wk = winnerKey(m);
+  const cls = wk ? (wk === key ? 'win' : 'lose') : '';
+  const sc = t.score == null ? '' : t.pens != null ? `${t.score} (${t.pens})` : `${t.score}`;
+  const who = SWEEPSTAKE[t.fc] || '';
+  return `<div class="trow ${cls}">
+    <img src="${flag(t.fc)}" alt="">
+    <div class="nm"><div class="who">${esc(who)}</div><span class="tn">${esc(t.name)}</span></div>
+    <div class="sc">${sc}</div></div>`;
+}
+function matchBoxHTML(m, state, extra=''){
+  const live = isLive(m);
+  const isNext = state.next && state.next.MatchNumber === m.MatchNumber;
+  const cls = ['mbox', extra, live ? 'live' : '', isNext ? 'next' : ''].join(' ');
+  const venue = loc(m.Stadium?.Name, '');
+  const foot = live ? `● LIVE — ${esc(venue)}`
+             : isFinished(m) ? `FT · ${esc(venue)}`
+             : `${koLabel(m.Date)} · ${esc(venue)}`;
+  const tag = live ? '<span class="tag tlive">LIVE</span>' : isNext ? '<span class="tag tnext">NEXT</span>' : '';
+  return `<div class="${cls}" data-mn="${m.MatchNumber}"><span class="mno">M${m.MatchNumber}</span>${tag}
+    ${teamRowHTML(m,'Home',state)}${teamRowHTML(m,'Away',state)}
+    <div class="mfoot" title="${esc(venue)}">${foot}</div></div>`;
+}
+function roundColHTML(list, label, state){
+  return `<div class="round"><div class="rlab">${label}</div><div class="rcol">
+    ${list.map(m => `<div class="mwrap">${matchBoxHTML(m, state)}</div>`).join('')}</div></div>`;
+}
+function renderBracket(state){
+  const cols = collectCols();
+  const fin = byNum[104], bronze = byNum[103];
+  let champHTML = '<span class="cup">🏆</span>Champion TBD';
+  if (state.champion){
+    champHTML = `<span class="cup">🏆</span>${esc(SWEEPSTAKE[state.champion]||'')} — ${esc(teamNames[state.champion]||state.champion)}`;
+  }
+  const centre = `<div class="round" style="min-width:210px"><div class="rlab">Final</div>
+    <div class="rcol centre">
+      <div id="champ">${champHTML}</div>
+      ${fin ? matchBoxHTML(fin, state, 'final') : ''}
+      <div class="bronzelab">Third place</div>
+      ${bronze ? matchBoxHTML(bronze, state) : ''}
+    </div></div>`;
+  $('#bracket').innerHTML =
+    roundColHTML(cols.L[3], 'Round of 32', state) +
+    roundColHTML(cols.L[2], 'Round of 16', state) +
+    roundColHTML(cols.L[1], 'Quarter-finals', state) +
+    roundColHTML(cols.L[0], 'Semi-final', state) +
+    centre +
+    roundColHTML(cols.R[0], 'Semi-final', state) +
+    roundColHTML(cols.R[1], 'Quarter-finals', state) +
+    roundColHTML(cols.R[2], 'Round of 16', state) +
+    roundColHTML(cols.R[3], 'Round of 32', state);
+  fitBracket();
+  drawLinks();
+}
+
+/* ---------- bracket connector lines (SVG overlay) ---------- */
+function drawLinks(){
+  const br = $('#bracket');
+  br.querySelector('svg.links')?.remove();
+  const bR = br.getBoundingClientRect();
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('class', 'links');
+  svg.setAttribute('width', br.scrollWidth);
+  svg.setAttribute('height', br.scrollHeight);
+  const k = bR.width / br.offsetWidth || 1;   // undo any fit-to-viewport scale
+  const pos = mn => {
+    const el = br.querySelector(`.mbox[data-mn="${mn}"]`);
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    return {l: (r.left - bR.left) / k, r: (r.right - bR.left) / k, cy: ((r.top + r.bottom) / 2 - bR.top) / k};
+  };
+  let d = '';
+  for (const n of [89,90,91,92,93,94,95,96,97,98,99,100,101,102,104]){
+    const m = byNum[n];
+    if (!m) continue;
+    for (const ph of [m.PlaceHolderA, m.PlaceHolderB]){
+      const s = parseInt(String(ph||'').replace(/\D/g,''), 10);
+      if (!byNum[s]) continue;
+      const a = pos(s), b = pos(n);
+      if (!a || !b) continue;
+      if (a.r < b.l){ const mid = (a.r + b.l) / 2; d += `M${a.r},${a.cy} H${mid} V${b.cy} H${b.l} `; }
+      else          { const mid = (a.l + b.r) / 2; d += `M${a.l},${a.cy} H${mid} V${b.cy} H${b.r} `; }
+    }
+  }
+  const p = document.createElementNS(NS, 'path');
+  p.setAttribute('d', d);
+  p.setAttribute('fill', 'none');
+  p.setAttribute('stroke', getComputedStyle(document.body).getPropertyValue('--pp-link').trim() || '#c3bba2');
+  p.setAttribute('stroke-width', '1.5');
+  svg.appendChild(p);
+  br.prepend(svg);
+}
+/* ---------- fit the whole bracket to the window width ---------- */
+const MIN_SCALE = 0.55;                       // below this, fall back to horizontal scrolling
+function fitBracket(){
+  const br = $('#bracket'), fit = $('#bfit');
+  if (!br.children.length) return;
+  br.style.transform = '';
+  fit.style.height = '';
+  const s = fit.clientWidth / br.offsetWidth; // offsetWidth = natural layout width (min 1840)
+  if (s < 1){
+    const k = Math.max(s, MIN_SCALE);
+    br.style.transform = `scale(${k})`;
+    fit.style.height = br.offsetHeight * k + 'px';
+  }
+}
+let rsTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(rsTimer);
+  rsTimer = setTimeout(() => { fitBracket(); drawLinks(); }, 150);
+});
+window.addEventListener('load', () => { fitBracket(); drawLinks(); });
+
+/* ---------- knocked-out list ---------- */
+function renderKnockedOut(state){
+  const box = $('#knockedOut');
+  const outs = Object.entries(state.st).filter(([,s]) => s.out);
+  if (!outs.length){
+    box.innerHTML = '<h2>🟥 Knocked out</h2><div class="gsec"><h3>No one is out yet</h3></div>';
+    return;
+  }
+  // group by stage, most recent stage first; group stage last
+  const byStage = {};
+  for (const [fc, s] of outs) (byStage[s.stageRank ?? 0] ??= []).push([fc, s]);
+  const ranks = Object.keys(byStage).map(Number).sort((a,b) => b - a);
+  let html = `<h2>🟥 Knocked out — ${outs.length} of 48</h2>`;
+  for (const r of ranks){
+    const list = byStage[r].sort((a,b) => (SWEEPSTAKE[a[0]]||'').localeCompare(SWEEPSTAKE[b[0]]||''));
+    const lab = r === 0 ? 'Out at the group stage' : `Out in the ${ROUND_LABEL[r]}`;
+    html += `<div class="gsec"><h3>${lab} <span>(${list.length})</span></h3><div class="gcards">` +
+      list.map(([fc]) => {
+        const bronze = state.bronzeWinner === fc;
+        return `<div class="gcard${bronze?' bronze':''}"><img src="${flag(fc)}" alt="">
+          <div><div class="gp">${esc(SWEEPSTAKE[fc])}${bronze?' 🥉':''}</div>
+          <div class="gt">${esc(teamNames[fc]||fc)}</div></div></div>`;
+      }).join('') + `</div></div>`;
+  }
+  box.innerHTML = html;
+}
+
+/* ---------- sidebar leaderboard ---------- */
+function renderSide(state){
+  const rows = Object.entries(state.st).map(([fc, s]) => ({fc, ...s}));
+  const alive = rows.filter(r => !r.out);
+  const out = rows.filter(r => r.out);
+
+  alive.sort((a,b) => {
+    if (!!b.champion - !!a.champion) return !!b.champion - !!a.champion;
+    if (!!b.live - !!a.live) return !!b.live - !!a.live;                  // live pinned to the top
+    if (b.roundNow !== a.roundNow) return b.roundNow - a.roundNow;       // then deeper round first
+    const ka = a.next ? new Date(a.next.Date) : Infinity;
+    const kb = b.next ? new Date(b.next.Date) : Infinity;
+    return ka - kb;
+  });
+  // earlier out => lower down (as requested): sort by elimination time, newest first
+  out.sort((a,b) => b.elimTime - a.elimTime);
+
+  const row = r => {
+    const who = SWEEPSTAKE[r.fc], team = teamNames[r.fc] || r.fc;
+    let chip, sub;
+    if (r.champion){ chip = '<span class="chip champ">🏆 CHAMPION</span>'; sub = team; }
+    else if (r.out){
+      chip = `<span class="chip outc">OUT · ${r.stageRank ? ROUND_SHORT[r.stageRank] : 'GROUPS'}</span>`;
+      sub = team + (r.note ? ` · ${r.note}` : '');
+    } else if (r.live){
+      const h = sideOf(r.live,'Home'), a = sideOf(r.live,'Away');
+      chip = '<span class="chip livec">● LIVE</span>';
+      sub = `${team} · ${h?.name??'?'} ${h?.score??''}–${a?.score??''} ${a?.name??'?'}`;
+    } else {
+      chip = `<span class="chip alive">IN · ${ROUND_SHORT[r.roundNow]}</span>`;
+      sub = team + (r.next ? ` · ${koShort(r.next.Date)}` : '');
+    }
+    return `<div class="srow${r.out?' out':''}"><img src="${flag(r.fc)}" alt="">
+      <div class="sp"><b>${esc(who)}</b><span>${esc(sub)}</span></div>${chip}</div>`;
+  };
+
+  $('#sideBody').innerHTML =
+    `<div class="sum">${alive.length} still in · ${out.length} out — earliest out at the bottom</div>` +
+    alive.map(row).join('') +
+    (out.length ? `<div class="sdiv">knocked out</div>` + out.map(row).join('') : '');
+}
+
+/* ---------- sidebar drawer (folded by default) ---------- */
+$('#sideBtn').addEventListener('click', () => document.body.classList.toggle('side-open'));
+$('#sideClose').addEventListener('click', () => document.body.classList.remove('side-open'));
+$('#main').addEventListener('click', () => document.body.classList.remove('side-open'));
+
+/* ---------- light / dark toggle ---------- */
+function setTheme(t){
+  document.body.classList.toggle('dark', t === 'dark');
+  $('#themeBtn').textContent = t === 'dark' ? '☀️' : '🌙';
+  try { localStorage.setItem('sweep-theme', t); } catch(e){}
+  drawLinks();                                   // connector stroke follows the theme
+}
+$('#themeBtn').addEventListener('click', () =>
+  setTheme(document.body.classList.contains('dark') ? 'light' : 'dark'));
+(() => { let t = 'light'; try { t = localStorage.getItem('sweep-theme') || 'light'; } catch(e){} setTheme(t); })();
+
+/* ---------- boot / refresh ---------- */
+async function refresh(){
+  try{
+    const ms = await fetchData();
+    lastData = ms;
+    const state = computeState(ms);
+    renderBracket(state);
+    renderKnockedOut(state);
+    renderSide(state);
+    $('#err').style.display = 'none';
+    $('#stamp').textContent = 'Updated ' + new Date().toLocaleTimeString();
+  }catch(e){
+    $('#err').textContent = 'Could not refresh FIFA data (' + e.message + ') — showing last known state.';
+    $('#err').style.display = 'block';
+  }
+}
+$('#tzlab').textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+refresh();
+setInterval(refresh, 60_000);
+</script>
+</body>
+</html>
