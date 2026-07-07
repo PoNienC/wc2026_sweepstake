@@ -616,7 +616,7 @@ function renderSide(state){
       sub = `${team} · ${h?.name??'?'} ${h?.score??''}–${a?.score??''} ${a?.name??'?'}`;
     } else {
       chip = `<span class="chip alive">IN · ${ROUND_SHORT[r.roundNow]}</span>`;
-      sub = team + (r.next ? ` · ${koShort(r.next.Date)}` : '');
+      sub = team;   // kickoff dropped so the 🏆 title odds always fit (the bracket shows kickoffs)
     }
     const oc = (!r.out && !r.champion) ? oddsByTeam?.get(r.fc)?.champ : null;
     if (oc != null) sub += ` · 🏆 ${champPct(oc)}`;
