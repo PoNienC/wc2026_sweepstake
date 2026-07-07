@@ -107,6 +107,8 @@ svg.links{position:absolute;top:0;left:0;z-index:0;pointer-events:none}
 .trow .tn{display:block;font-size:11.5px;color:var(--pp-muted);line-height:1.2;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .trow .sc{font-weight:800;font-size:17px;min-width:26px;text-align:right;font-variant-numeric:tabular-nums}
+.trow .sc .odds{font-size:11px;font-weight:700;color:var(--pp-muted)}
+#champ .favline{display:block;font-size:10.5px;color:var(--pp-muted);font-weight:600;margin-top:3px;line-height:1.4}
 .trow.win .who{color:var(--pp-ink)}
 .trow.lose .who,.trow.lose .sc{color:var(--pp-muted);font-weight:600}
 .trow.lose img{filter:grayscale(.85);opacity:.72}
@@ -161,6 +163,11 @@ svg.links{position:absolute;top:0;left:0;z-index:0;pointer-events:none}
 .sdiv::before,.sdiv::after{content:"";flex:1;border-top:1px solid var(--pp-line)}
 
 footer{padding:12px 24px 28px;font-size:11.5px;color:var(--pp-muted)}
+#oddsInfo{margin-top:8px;max-width:720px}
+#oddsInfo summary{cursor:pointer;font-weight:700;color:var(--pp-muted)}
+#oddsInfo summary:hover{color:var(--pp-coral)}
+#oddsInfo p{margin-top:6px;line-height:1.55}
+#oddsInfo code{font-size:10.5px;background:rgba(125,125,125,.12);padding:1px 4px;border-radius:4px}
 </style>
 </head>
 <body>
@@ -189,6 +196,17 @@ footer{padding:12px 24px 28px;font-size:11.5px;color:var(--pp-muted)}
 <footer>
   Unofficial office sweepstake page — not affiliated with FIFA. Match data © FIFA (api.fifa.com), refreshed every 60&nbsp;s.
   Times shown in <span id="tzlab"></span>.
+  <details id="oddsInfo">
+    <summary>📈 How the champion odds work</summary>
+    <p>Each match gets a win probability from the gap in <b>FIFA World Ranking points</b> between the two
+    teams, using an Elo-style formula — <code>1 / (1 + 10^(−gap/333))</code> — with extra time and
+    penalties folded into that single number. Those match probabilities are then multiplied through every
+    possible path of the remaining bracket. It's an exact calculation, not a simulation, so the champion
+    percentages always add up to 100%. Results already played are locked in, and everything recalculates
+    as new results land. It's a ratings-only model: no injuries, no form, no line-ups — treat it as a
+    talking point, not a tip. Ranking data: FIFA (api.fifa.com), fixed for the duration of the
+    tournament.</p>
+  </details>
 </footer>
 
 <script>
@@ -257,6 +275,56 @@ function winnerKey(m){            // 'Home' | 'Away' | null (finished matches on
   if (hp != null && hp !== ap) return hp > ap ? 'Home' : 'Away';
   return null;
 }
+
+/* ---------- advancement odds (FIFA ranking points, Elo-style logistic) ---------- */
+const ODDS_DIVISOR = 333;          // FIFA points are ~2/3 of the eloratings scale
+let fifaPts = {};                  // FIFA code -> ranking points
+async function loadRanks(){
+  try{
+    const c = JSON.parse(localStorage.getItem('sweep-ranks') || 'null');
+    if (c && Date.now() - c.t < 24 * 3600e3){ fifaPts = c.p; return; }
+    const sched = await (await fetch('https://api.fifa.com/api/v3/rankingschedules/all?type=0&gender=1')).json();
+    const latest = (sched.Results || []).slice()
+      .sort((x, y) => (y.OfficialDate || '').localeCompare(x.OfficialDate || ''))[0];
+    if (!latest) return;
+    const rk = await (await fetch(`https://api.fifa.com/api/v3/rankingsbyschedule?rankingScheduleId=${latest.IdRankingSchedule}&count=300`)).json();
+    const p = {};
+    for (const r of (rk.Results || [])) if (r.IdCountry) p[r.IdCountry] = r.TotalPoints;
+    if (Object.keys(p).length){ fifaPts = p;
+      try{ localStorage.setItem('sweep-ranks', JSON.stringify({t: Date.now(), p})); }catch(e){} }
+  }catch(e){ /* odds simply stay hidden */ }
+}
+const pWin = (a, b) => { const x = fifaPts[a], y = fifaPts[b];
+  return (x == null || y == null) ? 0.5 : 1 / (1 + Math.pow(10, (y - x) / ODDS_DIVISOR)); };
+let oddsByTeam = null;             // FIFA code -> {champ}
+function computeOdds(){
+  if (!Object.keys(fifaPts).length || !byNum[104]){ oddsByTeam = null; return; }
+  const memo = new Map();
+  const sideDist = (num, which) => {
+    const m = byNum[num]; if (!m) return new Map();
+    const t = sideOf(m, which === 0 ? 'Home' : 'Away');
+    if (t) return new Map([[t.fc, 1]]);
+    const src = srcMatch(which === 0 ? m.PlaceHolderA : m.PlaceHolderB);
+    return (src && src.MatchNumber !== num) ? winnerDist(src.MatchNumber) : new Map();
+  };
+  function winnerDist(num){
+    if (memo.has(num)) return memo.get(num);
+    const m = byNum[num];
+    const h = sideDist(num, 0), a = sideDist(num, 1);
+    const res = new Map();
+    const wk = winnerKey(m);
+    if (wk && h.size === 1 && a.size === 1){
+      res.set(sideOf(m, wk).fc, 1);
+    } else {
+      for (const [t, pt] of h){ let s = 0; for (const [o, po] of a) s += po * pWin(t, o); res.set(t, (res.get(t) || 0) + pt * s); }
+      for (const [t, pt] of a){ let s = 0; for (const [o, po] of h) s += po * pWin(t, o); res.set(t, (res.get(t) || 0) + pt * s); }
+    }
+    memo.set(num, res); return res;
+  }
+  oddsByTeam = new Map();
+  for (const [t, p] of winnerDist(104)) if (p > 0) oddsByTeam.set(t, { champ: p });
+}
+const champPct = p => p >= 0.995 ? '100%' : p < 0.005 ? '<1%' : Math.round(p * 100) + '%';
 
 /* ---------- data ---------- */
 async function fetchData(){
@@ -360,7 +428,7 @@ function collectCols(){
 }
 
 /* ---------- rendering ---------- */
-function teamRowHTML(m, key, state){
+function teamRowHTML(m, key, state, odds){
   const t = sideOf(m, key);
   if (!t){
     const ph = key === 'Home' ? m.PlaceHolderA : m.PlaceHolderB;
@@ -370,7 +438,9 @@ function teamRowHTML(m, key, state){
   }
   const wk = winnerKey(m);
   const cls = wk ? (wk === key ? 'win' : 'lose') : '';
-  const sc = t.score == null ? '' : t.pens != null ? `${t.score} (${t.pens})` : `${t.score}`;
+  const sc = t.score == null
+    ? (odds != null ? `<span class="odds" title="Model pre-match win probability — FIFA ranking points">${Math.round(odds*100)}%</span>` : '')
+    : t.pens != null ? `${t.score} (${t.pens})` : `${t.score}`;
   const who = SWEEPSTAKE[t.fc] || '';
   return `<div class="trow ${cls}">
     <img src="${flag(t.fc)}" alt="">
@@ -386,8 +456,10 @@ function matchBoxHTML(m, state, extra=''){
              : isFinished(m) ? `FT · ${esc(venue)}`
              : `${koLabel(m.Date)} · ${esc(venue)}`;
   const tag = live ? '<span class="tag tlive">LIVE</span>' : isNext ? '<span class="tag tnext">NEXT</span>' : '';
+  const ph = (!isFinished(m) && !live && oddsByTeam && sideOf(m,'Home') && sideOf(m,'Away'))
+           ? pWin(sideOf(m,'Home').fc, sideOf(m,'Away').fc) : null;
   return `<div class="${cls}" data-mn="${m.MatchNumber}"><span class="mno">M${m.MatchNumber}</span>${tag}
-    ${teamRowHTML(m,'Home',state)}${teamRowHTML(m,'Away',state)}
+    ${teamRowHTML(m,'Home',state,ph)}${teamRowHTML(m,'Away',state,ph==null?null:1-ph)}
     <div class="mfoot" title="${esc(venue)}">${foot}</div></div>`;
 }
 function roundColHTML(list, label, state){
@@ -400,6 +472,10 @@ function renderBracket(state){
   let champHTML = '<span class="cup">🏆</span>Champion TBD';
   if (state.champion){
     champHTML = `<span class="cup">🏆</span>${esc(SWEEPSTAKE[state.champion]||'')} — ${esc(teamNames[state.champion]||state.champion)}`;
+  } else if (oddsByTeam && oddsByTeam.size){
+    const favs = [...oddsByTeam.entries()].sort((a, b) => b[1].champ - a[1].champ).slice(0, 3)
+      .map(([f, o]) => `${esc(SWEEPSTAKE[f] || teamNames[f] || f)} ${champPct(o.champ)}`).join(' · ');
+    champHTML += `<span class="favline" title="Model favourites — FIFA ranking points, Elo-style">${favs}</span>`;
   }
   const centre = `<div class="round" style="min-width:210px"><div class="rlab">Final</div>
     <div class="rcol centre">
@@ -516,7 +592,9 @@ function renderSide(state){
 
   alive.sort((a,b) => {
     if (!!b.champion - !!a.champion) return !!b.champion - !!a.champion;
-    if (!!b.live - !!a.live) return !!b.live - !!a.live;                  // live pinned to the top
+    const oa = oddsByTeam?.get(a.fc)?.champ, ob = oddsByTeam?.get(b.fc)?.champ;
+    if (oa != null && ob != null && ob !== oa) return ob - oa;            // best title odds first
+    if (!!b.live - !!a.live) return !!b.live - !!a.live;                  // then live matches
     if (b.roundNow !== a.roundNow) return b.roundNow - a.roundNow;       // then deeper round first
     const ka = a.next ? new Date(a.next.Date) : Infinity;
     const kb = b.next ? new Date(b.next.Date) : Infinity;
@@ -540,12 +618,14 @@ function renderSide(state){
       chip = `<span class="chip alive">IN · ${ROUND_SHORT[r.roundNow]}</span>`;
       sub = team + (r.next ? ` · ${koShort(r.next.Date)}` : '');
     }
+    const oc = (!r.out && !r.champion) ? oddsByTeam?.get(r.fc)?.champ : null;
+    if (oc != null) sub += ` · 🏆 ${champPct(oc)}`;
     return `<div class="srow${r.out?' out':''}"><img src="${flag(r.fc)}" alt="">
       <div class="sp"><b>${esc(who)}</b><span>${esc(sub)}</span></div>${chip}</div>`;
   };
 
   $('#sideBody').innerHTML =
-    `<div class="sum">${alive.length} still in · ${out.length} out — earliest out at the bottom</div>` +
+    `<div class="sum">${alive.length} still in${oddsByTeam && oddsByTeam.size ? ', sorted by 🏆 title odds' : ''} · ${out.length} out — earliest out at the bottom</div>` +
     alive.map(row).join('') +
     (out.length ? `<div class="sdiv">knocked out</div>` + out.map(row).join('') : '');
 }
@@ -571,6 +651,7 @@ async function refresh(){
   try{
     const ms = await fetchData();
     lastData = ms;
+    computeOdds();                       // cheap; no-op until the ranking has loaded
     const state = computeState(ms);
     renderBracket(state);
     renderKnockedOut(state);
@@ -597,6 +678,7 @@ async function trackVisit(){
 
 $('#tzlab').textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
 refresh();
+loadRanks().then(refresh);   // once the ranking lands, re-render with odds
 trackVisit();
 setInterval(refresh, 60_000);
 </script>
