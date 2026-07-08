@@ -630,10 +630,12 @@ function renderSide(state){
     (out.length ? `<div class="sdiv">knocked out</div>` + out.map(row).join('') : '');
 }
 
-/* ---------- sidebar drawer (folded by default) ---------- */
+/* ---------- sidebar drawer ---------- */
 $('#sideBtn').addEventListener('click', () => document.body.classList.toggle('side-open'));
 $('#sideClose').addEventListener('click', () => document.body.classList.remove('side-open'));
 $('#main').addEventListener('click', () => document.body.classList.remove('side-open'));
+// Open by default on desktop/tablet; phones start folded so the bracket isn't hidden.
+if (window.innerWidth > 720) document.body.classList.add('side-open');
 
 /* ---------- light / dark toggle ---------- */
 function setTheme(t){
